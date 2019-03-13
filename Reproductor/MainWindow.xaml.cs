@@ -111,7 +111,8 @@ namespace Reproductor
 
                 delay =
                     new Delay(reader);
-
+                delay.Activo = (bool)cbDelayActivo.IsChecked;
+                delay.OffsetMilisegundos = (int)sldDelayOffset.Value;
                 fades = new FadeInOutSampleProvider(
                     delay, true);
                 double milisegundosFadeIn =
@@ -231,6 +232,23 @@ namespace Reproductor
                     1000.0;
                 fades.BeginFadeOut(milisegundosFadeOut);
 
+            }
+        }
+
+        private void cbDelayActivo_Click(object sender, RoutedEventArgs e)
+        {
+            if (delay != null)
+            {
+                delay.Activo = (bool)cbDelayActivo.IsChecked;
+            }
+            
+        }
+
+        private void sldDelayOffset_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (delay != null)
+            {
+                delay.OffsetMilisegundos = (int)sldDelayOffset.Value;
             }
         }
     }

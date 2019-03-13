@@ -10,7 +10,19 @@ namespace Reproductor
     class Delay : ISampleProvider
     {
         private ISampleProvider fuente;
-        public int OffsetMilisegundos { get; set; }
+        private int offsetMS;
+        public int OffsetMilisegundos { get
+            {
+                return offsetMS;
+            }
+            set
+            {
+                offsetMS = value;
+                cantidadMuestrasOffset = (int)
+                (((float)offsetMS / 1000.0f) *
+                (float)fuente.WaveFormat.SampleRate);
+            }
+        }
         private int cantidadMuestrasOffset;
 
         private List<float> bufferDelay =
@@ -19,6 +31,7 @@ namespace Reproductor
         private int duracionBufferSegundos;
         private int cantidadMuestrasTranscurridas = 0;
         private int cantidadMuestrasBorradas = 0;
+        public bool Activo { get; set; }
 
 
         public WaveFormat WaveFormat
@@ -39,6 +52,7 @@ namespace Reproductor
             duracionBufferSegundos = 10;
             tamañoBuffer =
                 fuente.WaveFormat.SampleRate * duracionBufferSegundos;
+            Activo = true;
         }
 
         public int Read(float[] buffer, int offset, int count)
@@ -66,14 +80,17 @@ namespace Reproductor
                 cantidadMuestrasBorradas += diferencia;
             }
             //Aplicar el efecto
-            if(milisegundosTranscurridos > OffsetMilisegundos)
+            if (Activo)
             {
-                for (int i =0; i < read; i++)
+                if (milisegundosTranscurridos > OffsetMilisegundos)
                 {
-                    buffer[offset + i] +=
-                        bufferDelay[cantidadMuestrasTranscurridas - 
-                        cantidadMuestrasBorradas
-                        + i - cantidadMuestrasOffset];
+                    for (int i = 0; i < read; i++)
+                    {
+                        buffer[offset + i] +=
+                            bufferDelay[cantidadMuestrasTranscurridas -
+                            cantidadMuestrasBorradas
+                            + i - cantidadMuestrasOffset];
+                    }
                 }
             }
 
